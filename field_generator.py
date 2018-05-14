@@ -1,4 +1,4 @@
-from string import ascii_lowercase
+from json import dump
 from random import randint, choice
 from copy import deepcopy
 
@@ -63,13 +63,11 @@ class Battle_ships:
                     self.field = deepcopy(new_field)
                     break
 
-        for i in self.field:
-            print(i)
-
     def save_to_map_json(self):
         with open('maps.json', 'w', encoding='utf8') as file:
-            file.write()
+            dump({"maps": self.field}, file)
 
 
-b = Battle_ships()
-b.place_ships()
+# b = Battle_ships()
+# b.place_ships()
+# b.save_to_map_json()
