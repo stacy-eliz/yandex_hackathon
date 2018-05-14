@@ -21,7 +21,7 @@ def handle_dialog(request, response, user_storage):
             "human" : 1,
             "AliceTurns":[],
             "userMatrix":[]
-            #TODO map generate
+
             
         }
 
@@ -30,10 +30,13 @@ def handle_dialog(request, response, user_storage):
         # response.set_buttons(buttons)
 
         return response, user_storage
-
+    
+    rcl = request.command.lower()
+    rcl = rcl.replace(' ','')
+    rcl+=' '
     # Обрабатываем ответ пользователя.
-    if request.command.lower() in ['убил', 'ранил', 'попал', 'мимо']:
-        if request.command.lower() == 'убил':
+    if rcl.strip() in ['убил', 'ранил', 'попал', 'мимо']:
+        if rcl.strip() == 'убил':
             if ifend(user_storage["maps"]):
                # print(user_storage)
                 if user_storage["human"]==1:
@@ -50,27 +53,28 @@ def handle_dialog(request, response, user_storage):
 
                 a = a + ' Я хожу ' + alph[c[0]].upper() + str(c[1] + 1)
                 response.set_text(a)
-        if request.command.lower() in ['ранил', 'попал']:
+        if rcl.strip() in ['ранил', 'попал']:
             user_storage["human"]  = 0;
             t = AliceTurn(user_storage)
             alph = 'абвгдежзийкл'
             a = '\nЯ хожу ' + alph[t[0]].upper() + str(t[1] + 1)
             response.set_text(a)
 
-        if request.command.lower() == 'мимо':
+        if rcl.strip() == 'мимо':
            # print(user_storage)
             response.set_text('Ваш ход')
             user_storage["human"] = 1
         return response, user_storage
-    elif request.command.lower()[0] in 'абвгдежзийкл' and request.command.lower()[1:] in '12345678910' and user_storage["human"] == 1 and int(request.command.lower()[1:])<10:
 
-        a = vustrel(user_storage["maps"],request.command.lower())
+    elif rcl.strip()[0] in 'абвгдежзийкл' and request.command.lower()[1:] in '1 2 3 4 5 6 7 8 9 10 ' and user_storage["human"] == 1 and int(request.command.lower()[1:])<=10:
+
+        a = vustrel(user_storage["maps"],rcl.strip())
         if a == 'мимо':
             alph = 'абвгдежзийкл'
             user_storage["human"] = 0
             c = AliceTurn(user_storage)
 
-            a = a + ' \nЯ хожу ' +alph[c[0]].upper() +str(c[1]+1)
+            a = a + '\nЯ хожу ' +alph[c[0]].upper() +str(c[1]+1)
         else:
             user_storage["human"] = 1
         response.set_text(a)
@@ -79,7 +83,7 @@ def handle_dialog(request, response, user_storage):
     elif user_storage["human"] == 0:
         t = AliceTurn(user_storage)
         alph = 'абвгдежзийкл'
-        a =  '\nЯ хожу ' + alph[t[0]].upper() + str(t[1] + 1)
+        a =  'Я хожу ' + alph[t[0]].upper() + str(t[1] + 1)
         response.set_text(a)
 
         user_storage["human"] = 1;
@@ -90,7 +94,7 @@ def handle_dialog(request, response, user_storage):
 
 def AliceTurn(user_storage):
     if user_storage["userMatrix"]==[]:
-        user_storage["userMatrix"] = [[0 for j in range(10)] for i in range(10)]
+        user_storage["userMatrix"] = [[0 for j in range(10)] for i in range(10)];
     import random
     def generateTurn():
         turn = [random.randint(0,9),random.randint(0,9)]
@@ -142,26 +146,26 @@ def vustrel(matrix, coord):
             output = 'убит'
         elif matrix[ind][k+1]==0 and matrix[ind][k-1]==0:
             for j in range(4):
-                if j>=0 and j<=9:
+                if ind+j>=0 and ind+j<=9:
                     if matrix[ind+j][k]==0:
                         break
                     else:
                         list_ship.append(matrix[ind+j][k])
             for j in range(1,5):
-                if j>=0 and j<=9:
+                if ind+j>=0 and ind+j<=9:
                     if matrix[ind-j][k]==0:
                         break
                     else:
                         list_ship.append(matrix[ind-j][k])
-        elif matrix[ind+1][k]==0 and matrix[ind-1][j]==0:
+        elif matrix[ind+1][k]==0 and matrix[ind-1][k]==0:
             for j in range(1, 5):
-                if j >= 0 and j <= 9:
+                if ind+j >= 0 and ind+j <= 9:
                     if matrix[ind][k+j]==0:
                         break
                     else:
                         list_ship.append(matrix[ind][k+j])
             for j in range(1,5):
-                if j >= 0 and j <= 9:
+                if ind+j >= 0 and ind+j <= 9:
                     if matrix[ind][k-j]==0:
                         break
                     else:
