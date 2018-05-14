@@ -10,6 +10,9 @@ def handle_dialog(request, response, user_storage):
     if request.is_new_session:
         # Это новый пользователь.
         # Инициализируем сессию и поприветствуем его.
+        b = Battle_ships();
+        b.place_ships();
+        b.save_to_map_json();
         with open('map.json') as maps:
             mapaa = json.load(maps)["maps"]
         user_storage = {
@@ -51,7 +54,7 @@ def handle_dialog(request, response, user_storage):
             user_storage["human"]  = 0;
             t = AliceTurn(user_storage)
             alph = 'абвгдежзийкл'
-            a = 'Я хожу ' + alph[t[0]].upper() + str(t[1] + 1)
+            a = '\nЯ хожу ' + alph[t[0]].upper() + str(t[1] + 1)
             response.set_text(a)
 
         if request.command.lower() == 'мимо':
@@ -67,7 +70,7 @@ def handle_dialog(request, response, user_storage):
             user_storage["human"] = 0
             c = AliceTurn(user_storage)
 
-            a = a + 'Я хожу ' +alph[c[0]].upper() +str(c[1]+1)
+            a = a + ' \nЯ хожу ' +alph[c[0]].upper() +str(c[1]+1)
         else:
             user_storage["human"] = 1
         response.set_text(a)
@@ -76,7 +79,7 @@ def handle_dialog(request, response, user_storage):
     elif user_storage["human"] == 0:
         t = AliceTurn(user_storage)
         alph = 'абвгдежзийкл'
-        a =  'Я хожу ' + alph[t[0]].upper() + str(t[1] + 1)
+        a =  '\nЯ хожу ' + alph[t[0]].upper() + str(t[1] + 1)
         response.set_text(a)
 
         user_storage["human"] = 1;
@@ -169,3 +172,72 @@ def vustrel(matrix, coord):
         else:
             output = 'убит'
     return output
+from json import dump
+from random import randint, choice
+from copy import deepcopy
+
+class Battle_ships:
+    def __init__(self):
+        self.alphabet = [i for i in 'aбвгдеёжзийклмнопкрстуфкцчшщъыьэюя']
+        self.reversed_alphabet = {j: i for i, j in enumerate(self.alphabet)}
+        self.field = [[0 for i in range(10)] for i in range(10)]
+
+    def check_cell(self, cell, first_cell=False):
+        x, y = cell
+        count = 0
+        possibleCells = [(1, 1), (-1, -1), (0, 1), (1, 0), (-1, 0), (0, -1), (-1, 1), (1, -1)]
+        for possible in possibleCells:
+            if -1 < x + possible[0] < 10 and -1 < y + possible[1] < 10:
+                if self.field[y + possible[1]][x + possible[0]] == 1:
+                    count += 1
+
+        if (count < 2 and not first_cell) or (first_cell and count == 0):
+            return True
+        return False
+
+    def place_ships(self):
+        ships = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+        for ship in ships:
+            while True:
+                new_field = deepcopy(self.field)
+                intersection = False
+                direction = choice([True, False])
+
+                if direction:  # по горизонтали
+                    random_coors = (randint(0, 10 - ship), randint(0, 9))
+                    for x in range(random_coors[0], random_coors[0] + ship):
+                        if x == random_coors[0]:
+                            passed_cell = self.check_cell((x, random_coors[1]), True)
+                        else:
+                            passed_cell = self.check_cell((x, random_coors[1]), False)
+
+                        if not passed_cell:
+                            intersection = True
+                            break
+                        else:
+                            new_field[random_coors[1]][x] = 1
+
+                else:  # по вертикали
+                    random_coors = (randint(0, 9), randint(0, 10 - ship))
+                    for y in range(random_coors[1], random_coors[1] + ship):
+                        if y == random_coors[1]:
+                            passed_cell = self.check_cell((random_coors[0], y), True)
+                        else:
+                            passed_cell = self.check_cell((random_coors[0], y), False)
+
+                        if not passed_cell:
+                            intersection = True
+                            break
+                        else:
+                            new_field[y][random_coors[0]] = 1
+                # print(ship)
+                # for i in new_field:
+                    # print(i)
+                if not intersection:
+                    self.field = deepcopy(new_field)
+                    break
+
+    def save_to_map_json(self):
+        with open('maps.json', 'w', encoding='utf8') as file:
+            dump({"maps": self.field}, file)
+
