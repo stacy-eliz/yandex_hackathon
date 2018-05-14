@@ -238,6 +238,6 @@ class Battle_ships:
                     break
 
     def save_to_map_json(self):
-        with open('maps.json', 'w', encoding='utf8') as file:
+        with open('map.json', 'w', encoding='utf8') as file:
             dump({"maps": self.field}, file)
 
