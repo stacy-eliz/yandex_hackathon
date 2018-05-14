@@ -34,7 +34,6 @@ def handle_dialog(request, response, user_storage):
     rcl = request.command.lower()
     rcl = rcl.replace(' ','')
     rcl+=' '
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'+rcl)
     # Обрабатываем ответ пользователя.
     if rcl.strip() in ['убил', 'ранил', 'попал', 'мимо']:
         if rcl.strip() == 'убил':
