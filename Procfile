@@ -1,1 +1,1 @@
-web: python alice-app.py
+web: gunicorn alice-app.py:app
