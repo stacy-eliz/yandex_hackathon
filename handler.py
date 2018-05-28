@@ -71,6 +71,7 @@ def handle_dialog(request, response, user_storage):
             return response, user_storage
         else:
             response.set_text(choice(phrases_for_humans_turn))
+        return response, user_storage
 
     elif matched is not None:
         letter = matched.group(0)[0]
