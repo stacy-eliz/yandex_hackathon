@@ -35,20 +35,21 @@ def handle_dialog(request, response, user_storage):
                           '(от "А" до "И" слева направо) и цифрой по вертикали (от 1 до 10 сверху вниз). Мои корабли уже расставлены. '
                           'По вашей готовности атакуйте. Чтобы провести атаку скажите или введите координаты.')
         # response.set_buttons(buttons)
-
         return response, user_storage
 
     killed = ['убила', 'убил', 'потопила', 'потоплен', 'потопил']
     injured = ['попала', 'попал', 'попадание', 'ранил', 'ранила']
     missed = ['мимо', 'промах', 'промазала', 'промазал']
-    words = ['убила', 'убил', 'потопила', 'потопил', 'потоплен', 'попала', 'попал', 'попадание', 'ранил', 'ранила', 'мимо',
+    words = ['убила', 'убил', 'потопила', 'потопил', 'потоплен', 'попала', 'попал', 'попадание', 'ранил', 'ранила',
+             'мимо',
              'промах', 'промазала', 'промазал']
 
     phrases_for_alices_turn = ['Пожалуйста, не жульничайте, я контролирую игру.', 'Помоему, сейчас не ваш ход.',
-                              'Со мной такое не прокатит. Сейчас мой ход.', 'Может вы не будете меня обманывать?',
+                               'Со мной такое не прокатит. Сейчас мой ход.', 'Может вы не будете меня обманывать?',
                                'Давайте я забуду это, а вы ответите еще раз.']
 
-    phrases_for_humans_turn = ['Сейчас ваш ход, не надо поддаваться.', 'Может вы что-то перепутали? Сейчас вы атакуете.',
+    phrases_for_humans_turn = ['Сейчас ваш ход, не надо поддаваться.',
+                               'Может вы что-то перепутали? Сейчас вы атакуете.',
                                'Я конечно не против, но давайте играть по правилам', 'Не люблю лёгкие победы...']
 
     # Обрабатываем ответ пользователя.
@@ -61,21 +62,17 @@ def handle_dialog(request, response, user_storage):
     if user_message in words:
         if not user_storage["humans_turn"]:
             if user_message in killed:
-                response.set_text(AliceTurn(user_storage["users_matrix"], killed=True))
+                print(AliceTurn(user_storage["users_matrix"], killed=True))
 
             elif user_message in injured:
-                response.set_text(AliceTurn(user_storage["users_matrix"], killed=False))
+                print(AliceTurn(user_storage["users_matrix"], killed=False))
 
             elif user_message in missed:
-                # print(user_storage)
                 user_storage["humans_turn"] = True
-                response.set_text('Ваш ход.')
-
-            return response, user_storage
+                print('Ваш ход.')
 
         # Если игрок сказал не в свой ход
-        response.set_text(choice(phrases_for_humans_turn))
-        return response, user_storage
+        print(choice(phrases_for_humans_turn))
 
     # Если ходит игрок
     elif matched is not None:
@@ -87,29 +84,29 @@ def handle_dialog(request, response, user_storage):
 
                 if result_of_fire == 'Мимо':
                     user_storage["humans_turn"] = False
-                    response.set_text('Мимо. Я хожу. ' + AliceTurn(user_storage, killed=False))
+                    print('Мимо. Я хожу. ' + AliceTurn(user_storage['users_matrix'], killed=False))
 
                 else:
                     user_storage["humans_turn"] = True
-                    response.set_text(result_of_fire)
-            else:
-                response.set_text("Координаты клетки обозначаются буквой (от А до И) и числом (от 1 до 10) для поля "
-                                  "10 на 10 клеток. Пример - А1.")
-        else:
-            response.set_text(choice(phrases_for_alices_turn))
+                    user_storage["life"] -= 1
 
-        return response, user_storage
+                    print(result_of_fire)
+            else:
+                print("Координаты клетки обозначаются буквой (от А до И) и числом (от 1 до 10) для поля "
+                      "10 на 10 клеток. Пример - А1.")
+        else:
+            print(choice(phrases_for_alices_turn))
+
 
     # elif not user_storage["humans_turn"] == 0:
     #     t = AliceTurn(user_storage)
     #     alph = 'абвгдежзийкл'
     #     a = 'Я хожу ' + alph[t[0]].upper() + str(t[1] + 1)
-    #     response.set_text(a)
+    #     print(a)
     #     user_storage["humans_turn"] = 1
     #     return response, user_storage
     else:
-        response.set_text("Простите, но я вас не поняла.")
-        return response, user_storage
+        print("Простите, но я вас не поняла.")
 
 
 def AliceTurn(matrix, killed=False):
@@ -132,7 +129,7 @@ def AliceTurn(matrix, killed=False):
         turn = [randint(0, 9), randint(0, 9)]
         if i >= 120:
             turn = [-1, -1]
-    matrix["userMatrix"][turn[1]][turn[0]] = 1
+    matrix[turn[1]][turn[0]] = 1
 
     return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)
 
@@ -146,7 +143,6 @@ def AliceTurn(matrix, killed=False):
 #     return end
 
 
-
 # 1 - целые корабли, 2 - клетки, куда стреляли
 def fire(matrix, coord):
     x, y = coord
@@ -154,6 +150,7 @@ def fire(matrix, coord):
         output = 'Вы уже стреляли сюда'
     elif matrix[y][x] == 0:
         output = 'Мимо'
+        matrix[y][x] = 2
     elif matrix[y][x] == 1:
         matrix[y][x] = 3
         ship = [(x, y)]
@@ -161,12 +158,13 @@ def fire(matrix, coord):
         while len(ship) > 0:
             sinking = True
             x, y = ship.pop(0)
+            was.append((x, y))
             possibleCells = [(0, 1), (1, 0), (-1, 0), (0, -1)]
             for possible in possibleCells:
                 if -1 < x + possible[0] < 10 and -1 < y + possible[1] < 10:
                     if (x + possible[0], y + possible[1]) not in was:
                         if matrix[y + possible[1]][x + possible[0]] == 3:
-                            was.append((x + possible[0], y + possible[1]))
+                            ship.append((x + possible[0], y + possible[1]))
                         elif matrix[y + possible[1]][x + possible[0]] == 1:
                             sinking = False
                             break
@@ -176,6 +174,7 @@ def fire(matrix, coord):
                 output = 'Потоплен'
             else:
                 output = 'Ранен'
+
     return output
 
 
