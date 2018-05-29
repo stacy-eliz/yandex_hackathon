@@ -38,7 +38,7 @@ def handle_dialog(request, response, user_storage):
 
         return response, user_storage
 
-    user_message = request.command.lower().strip().replace(' ', '')
+    user_message = request.command.upper().strip().replace(' ', '')
 
     killed = ['убила', 'убил', 'потопила', 'потоплен']
     injured = ['попала', 'попал', 'попадание', 'ранил', 'ранила']
