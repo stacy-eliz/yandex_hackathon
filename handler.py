@@ -7,7 +7,7 @@ from re import findall, match
 
 
 SHIPS = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
-ALPHABET = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И']
+ALPHABET = ['а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и']
 
 
 # Функция для непосредственной обработки диалога.
@@ -38,7 +38,7 @@ def handle_dialog(request, response, user_storage):
 
         return response, user_storage
 
-    user_message = request.command.upper().strip().replace(' ', '')
+    user_message = request.command.lower().strip().replace(' ', '')
 
     killed = ['убила', 'убил', 'потопила', 'потоплен']
     injured = ['попала', 'попал', 'попадание', 'ранил', 'ранила']
@@ -54,8 +54,9 @@ def handle_dialog(request, response, user_storage):
 
     # Обрабатываем ответ пользователя.
     try_to_make_coor = ''.join(findall(r'\w+', user_message))
-    matched = match('^\w\d\d*', try_to_make_coor)
+    matched = match('\w\d0*', try_to_make_coor)
 
+    # Если ходит Алиса
     if user_message in words:
         if not user_storage["humans_turn"]:
             if user_message in killed:
@@ -66,24 +67,36 @@ def handle_dialog(request, response, user_storage):
 
             elif user_message in missed:
                 # print(user_storage)
-                response.set_text('Ваш ход')
                 user_storage["humans_turn"] = True
+                response.set_text('Ваш ход.')
+
             return response, user_storage
-        else:
-            response.set_text(choice(phrases_for_humans_turn))
+
+        # Если игрок сказал не в свой ход
+        response.set_text(choice(phrases_for_humans_turn))
         return response, user_storage
 
+    # Если ходит игрок
     elif matched is not None:
-        letter = matched.group(0)[0]
-        number = int(matched.group(0)[1:])
-        if 0 < number < 11 and letter in ALPHABET:
-            result_of_fire = fire(user_storage["maps"], (ALPHABET.index(letter), number - 1))
+        if user_storage["humans_turn"]:
+            letter = matched.group(0)[0]
+            number = int(matched.group(0)[1:])
+            if 0 < number < 11 and letter in ALPHABET:
+                result_of_fire = fire(user_storage["maps"], (ALPHABET.index(letter), number - 1))
 
-            if result_of_fire == 'Мимо':
-                user_storage["humans_turn"] = False
-                response.set_text(AliceTurn(user_storage, killed=False))
+                if result_of_fire == 'Мимо':
+                    user_storage["humans_turn"] = False
+                    response.set_text('Я хожу.\n' + AliceTurn(user_storage, killed=False))
+
+                else:
+                    user_storage["humans_turn"] = True
+                    response.set_text(result_of_fire)
             else:
-                user_storage["humans_turn"] = True
+                response.set_text("Координаты клетки обозначаются буквой (от А до И) и числом (от 1 до 10) для поля "
+                                  "10 на 10 клеток. Пример - А1.")
+        else:
+            response.set_text(choice(phrases_for_humans_turn))
+
         return response, user_storage
 
     # elif not user_storage["humans_turn"] == 0:
@@ -94,7 +107,7 @@ def handle_dialog(request, response, user_storage):
     #     user_storage["humans_turn"] = 1
     #     return response, user_storage
     else:
-        response.set_text("Простите, но я вас не поняла")
+        response.set_text("Простите, но я вас не поняла.")
         return response, user_storage
 
 
@@ -120,7 +133,7 @@ def AliceTurn(user_storage, killed=False):
             turn = [-1, -1]
     user_storage["userMatrix"][turn[1]][turn[0]] = 1
 
-    return "{}{}".format(ALPHABET[turn[0]], turn[1])
+    return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)
 
 
 # def ifend(matrix):
