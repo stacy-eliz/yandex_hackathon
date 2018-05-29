@@ -1,4 +1,12 @@
-# coding: utf-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Это основная чать логики навыка Алисы Морской бой
+Написана Сайдумаровым Семеном и Елизарововой Анастасией
+Переписана и избавлена от костылей(но это не точно) Дином Дмитрием
+"""
+
 from __future__ import unicode_literals
 from json import dump
 from random import randint, choice
@@ -8,9 +16,12 @@ from re import findall, match
 
 class ShipBattle:
     def __init__(self):
+        # Ключи - буквы, значения - индексы
         self.reversed_alphabet = {j: i for i, j in enumerate(ALPHABET)}
+        # Генерируем поле
         self.field = [[0 for _ in range(10)] for _ in range(10)]
 
+    # Вспомогательная фунция для проверки на пересечения
     def check_cell(self, cell, first_cell=False):
         x, y = cell
         count = 0
@@ -24,6 +35,7 @@ class ShipBattle:
             return True
         return False
 
+    # Метод расстановки кораблей на поле
     def place_ships(self):
         for ship in SHIPS:
             while True:
@@ -58,9 +70,7 @@ class ShipBattle:
                             break
                         else:
                             new_field[y][random_coors[0]] = 1
-                # print(ship)
-                # for i in new_field:
-                # print(i)
+
                 if not intersection:
                     self.field = deepcopy(new_field)
                     break
@@ -166,7 +176,6 @@ def handle_dialog(request, response, user_storage):
                     user_storage["humans_turn"] = False
                     response.set_text('Мимо. Я хожу. ' + alice_fires(user_storage['users_matrix'], killed=False))
                 else:
-                    user_storage["humans_turn"] = True
                     user_storage["life"] -= 1
                     response.set_text(result_of_fire)
 
