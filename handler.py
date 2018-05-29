@@ -21,11 +21,11 @@ def handle_dialog(request, response, user_storage):
         
         user_storage = {
             "user_id": request.user_id,
-            "maps": ship_battle.field,
             "humans_turn": True,
             "life": sum(SHIPS),
             "AliceTurns": [],
-            "userMatrix": [[0 for j in range(10)] for i in range(10)],
+            "Alices_matrix": ship_battle.field,
+            "users_matrix": [[0 for j in range(10)] for i in range(10)],
             "sinked_ship": [],
             "cheating_stage": 0
         }
@@ -38,13 +38,12 @@ def handle_dialog(request, response, user_storage):
 
         return response, user_storage
 
-    user_message = request.command.lower().strip().replace(' ', '')
-
-    killed = ['убила', 'убил', 'потопила', 'потоплен']
+    killed = ['убила', 'убил', 'потопила', 'потоплен', 'потопил']
     injured = ['попала', 'попал', 'попадание', 'ранил', 'ранила']
     missed = ['мимо', 'промах', 'промазала', 'промазал']
-    words = ['убила', 'убил', 'потопила', 'потоплен', 'попала', 'попал', 'попадание', 'ранил', 'ранила', 'мимо',
+    words = ['убила', 'убил', 'потопила', 'потопил', 'потоплен', 'попала', 'попал', 'попадание', 'ранил', 'ранила', 'мимо',
              'промах', 'промазала', 'промазал']
+
     phrases_for_alices_turn = ['Пожалуйста, не жульничайте, я контролирую игру.', 'Помоему, сейчас не ваш ход.',
                               'Со мной такое не прокатит. Сейчас мой ход.', 'Может вы не будете меня обманывать?',
                                'Давайте я забуду это, а вы ответите еще раз.']
@@ -53,6 +52,8 @@ def handle_dialog(request, response, user_storage):
                                'Я конечно не против, но давайте играть по правилам', 'Не люблю лёгкие победы...']
 
     # Обрабатываем ответ пользователя.
+    user_message = request.command.lower().strip().replace(' ', '')
+
     try_to_make_coor = ''.join(findall(r'\w+', user_message))
     matched = match('\w\d0*', try_to_make_coor)
 
@@ -60,10 +61,10 @@ def handle_dialog(request, response, user_storage):
     if user_message in words:
         if not user_storage["humans_turn"]:
             if user_message in killed:
-                response.set_text(AliceTurn(user_storage, killed=True))
+                response.set_text(AliceTurn(user_storage["users_matrix"], killed=True))
 
             elif user_message in injured:
-                response.set_text(AliceTurn(user_storage, killed=False))
+                response.set_text(AliceTurn(user_storage["users_matrix"], killed=False))
 
             elif user_message in missed:
                 # print(user_storage)
@@ -82,11 +83,11 @@ def handle_dialog(request, response, user_storage):
             letter = matched.group(0)[0]
             number = int(matched.group(0)[1:])
             if 0 < number < 11 and letter in ALPHABET:
-                result_of_fire = fire(user_storage["maps"], (ALPHABET.index(letter), number - 1))
+                result_of_fire = fire(user_storage["Alices_matrix"], (ALPHABET.index(letter), number - 1))
 
                 if result_of_fire == 'Мимо':
                     user_storage["humans_turn"] = False
-                    response.set_text('Я хожу.\n' + AliceTurn(user_storage, killed=False))
+                    response.set_text('Мимо. Я хожу. ' + AliceTurn(user_storage, killed=False))
 
                 else:
                     user_storage["humans_turn"] = True
@@ -95,7 +96,7 @@ def handle_dialog(request, response, user_storage):
                 response.set_text("Координаты клетки обозначаются буквой (от А до И) и числом (от 1 до 10) для поля "
                                   "10 на 10 клеток. Пример - А1.")
         else:
-            response.set_text(choice(phrases_for_humans_turn))
+            response.set_text(choice(phrases_for_alices_turn))
 
         return response, user_storage
 
@@ -111,7 +112,7 @@ def handle_dialog(request, response, user_storage):
         return response, user_storage
 
 
-def AliceTurn(user_storage, killed=False):
+def AliceTurn(matrix, killed=False):
     # if len(user_storage["sinked_ship"]) == 0:
     #     possible_cells = []
     #     for y in range(10):
@@ -126,12 +127,12 @@ def AliceTurn(user_storage, killed=False):
     # TODO сделать обработку убил\ранил
     i = 0
     turn = [randint(0, 9), randint(0, 9)]
-    while user_storage["userMatrix"][turn[1]][turn[0]] != 0:
+    while matrix[turn[1]][turn[0]] != 0:
         i += 1
         turn = [randint(0, 9), randint(0, 9)]
         if i >= 120:
             turn = [-1, -1]
-    user_storage["userMatrix"][turn[1]][turn[0]] = 1
+    matrix["userMatrix"][turn[1]][turn[0]] = 1
 
     return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)
 
