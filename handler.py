@@ -124,7 +124,7 @@ def handle_dialog(request, response, user_storage):
             "sinked_ship": [],
             "cheating_stage": 0
         }
-
+        print('started')
         # buttons, user_storage = get_suggests(user_storage)
         response.set_text('Привет! Играем в морской бой. Каждая клетка обозначается алфавитной буквой по горизонтали '
                           '(от "А" до "К", исключая "Ё" и "Й", слева направо) и цифрой по вертикали (от 1 до 10 сверху вниз). Мои корабли '
