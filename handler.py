@@ -144,10 +144,12 @@ def handle_dialog(request, response, user_storage):
 
             # Проверка наличия слова в словах о потоплении
             if user_message in KILLED_WORDS:
+                user_storage["humans_turn"] = False
                 response.set_text(alice_fires(user_storage["users_matrix"], killed=True))
 
             # Проверка наличия слова в словах о попадании
             elif user_message in INJURED_WORDS:
+                user_storage["humans_turn"] = False
                 response.set_text(alice_fires(user_storage["users_matrix"], killed=False))
 
             # Проверка наличия слова в словах о промахе
@@ -176,6 +178,7 @@ def handle_dialog(request, response, user_storage):
                     user_storage["humans_turn"] = False
                     response.set_text('Мимо. Я хожу. ' + alice_fires(user_storage['users_matrix'], killed=False))
                 else:
+                    user_storage["humans_turn"] = True
                     user_storage["life"] -= 1
                     response.set_text(result_of_fire)
 
