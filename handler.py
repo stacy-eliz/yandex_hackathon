@@ -2,9 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
+RU:
 Это основная чать логики навыка Алисы Морской бой
 Написана Сайдумаровым Семеном и Елизарововой Анастасией
 Переписана и избавлена от костылей(но это не точно) Дином Дмитрием
+EN:
+This is main logic of Alice skill 'Sea war'
+Writing by Saidumarov Semen and Elizarova Anastasiya
+Rewriting and removing crutches (But it is not exactly) by Din Dmitiy
 """
 
 from __future__ import unicode_literals
