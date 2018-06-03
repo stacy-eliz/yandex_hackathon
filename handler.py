@@ -234,6 +234,7 @@ def alice_fires(user_data, happened):
             return "Конец"
 
         turn = choice(cells_for_fire)  # Рандомно берем
+        user_data["last_turn"] = turn
         return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)  # Формируем ответ
 
     # Умный выстрел (с учетом предыдущих выстрелов для подбитого корабля)
@@ -259,14 +260,15 @@ def alice_fires(user_data, happened):
                 _y = user_data["free_cells"][index][1]
 
                 # Проверка на попадание в поле
-                if 0 <= _x <= 9 and 0 <= _y <= 9:
+                if 0 <= _x + _cell[0] <= 9 and 0 <= _y + _cell[1] <= 9:
 
-                    # Если клетка стреленная удаляем из возможных в конце цикла
+                    # Если клетка стрелянная удаляем из возможных в конце цикла
                     if user_data["users_matrix"][_y][_x] == 2:
                         indexes_to_pop.append(index)
 
-                    # Если клетка не стреленная стреляем
+                    # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
+                        user_data["last_turn"] = (_x, _y)
                         return "{}{}".format(ALPHABET[_x].upper(), _y + 1)
 
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
@@ -318,7 +320,7 @@ def alice_fires(user_data, happened):
         # Переключаем на ход игрока
         user_data["humans_turn"] = True
 
-        # Выставление стреленной клетки на поле
+        # Выставление стрелянной клетки на поле
         x, y = user_data["last_turn"]
         user_data["users_matrix"][y][x] = 2
 
