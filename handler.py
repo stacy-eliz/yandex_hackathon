@@ -323,10 +323,11 @@ def alice_fires(user_data, happened):
         # Выставление стрелянной клетки на поле
         x, y = user_data["last_turn"]
         user_data["users_matrix"][y][x] = 2
-
+        
         # Инкримент к жульничеству
         user_data["cheating_stage"] += 1
-
+        
+        answer = 'Ваш ход.'
         # Замечания для жуликов
         if user_data["cheating_stage"] == 10:
             answer = 'Что-то мне не везет. Ваш ход.'
@@ -341,8 +342,6 @@ def alice_fires(user_data, happened):
         elif user_data["cheating_stage"] == 97:
             answer = 'Надеюсь, такая простая победа принесет вам хотя бы каплю удовольствия, ' \
                      'ведь моя задача заключается в том чтобы радовать людей и упрощать их жизнь'
-        else:
-            answer = 'Ваш ход.'
 
     return answer
 
