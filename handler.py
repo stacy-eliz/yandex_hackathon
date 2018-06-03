@@ -153,21 +153,23 @@ def handle_dialog(request, response, user_storage):
 
             # Проверка наличия слова в словах о потоплении
             if user_message in KILLED_WORDS:
-                alice_answer = alice_fires(user_storage, "убил")
-                if alice_answer == "Конец":
-                    response.set_text("Мимо. Я простреляла все клетки, так что, считайте, я выиграла")
+                alice_answer = alice_fires(user_storage, "убил")  # TODO Все испраивть
+                if alice_answer == "Я победила, спасибо за игру!":
+                    response.set_text(alice_answer)
                     response.end()
+                elif alice_answer == "Конец":
+                    response.set_text("Я простреляла все клетки, так что, считайте, я выиграла.")
                 else:
-                    response.set_text('Мимо. Я хожу. ' + alice_answer)
+                    response.set_text(alice_answer)
 
             # Проверка наличия слова в словах о попадании
             elif user_message in INJURED_WORDS:
                 alice_answer = alice_fires(user_storage, "ранил")
                 if alice_answer == "Конец":
-                    response.set_text("Мимо. Я простреляла все клетки, так что, считайте, я выиграла")
+                    response.set_text("Я простреляла все клетки, так что, считайте, я выиграла.")
                     response.end()
                 else:
-                    response.set_text('Мимо. Я хожу. ' + alice_answer)
+                    response.set_text(alice_answer)
 
             # Проверка наличия слова в словах о промахе
             elif user_message in MISSED_WORDS:
@@ -198,7 +200,6 @@ def handle_dialog(request, response, user_storage):
                         response.end()
 
                     else:
-                        logging.info("ДОШЛО ДО МИМО")
                         response.set_text('Мимо. Я хожу. ' + alice_answer)
                 else:
                     user_storage["life"] -= 1
@@ -291,6 +292,10 @@ def alice_fires(user_data, happened):
 
     answer = ''
     if happened == "убил":
+        user_data["life"] -= 1
+        if user_data["life"] < 1:
+            return "Я победила, спасибо за игру!"
+
         user_data["cheating_stage"] = 0  # Обнуляем уровень жулика
         user_data["Target"].append(user_data["last_turn"])  # Добавим клетку, чтобы в цикле она тоже отметилась
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]  # Обновляем возможные клетки
