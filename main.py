@@ -12,7 +12,7 @@ import json
 from alice_sdk import AliceRequest, AliceResponse
 
 # Импортируем модуль с логикой игры
-from elephant import handle_dialog
+from handler import handle_dialog
 
 # Импортируем подмодули Flask для запуска веб-сервиса.
 from flask import Flask, request
