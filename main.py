@@ -12,7 +12,7 @@ import json
 from alice_sdk import AliceRequest, AliceResponse
 
 # Импортируем модуль с логикой игры
-from handler import handle_dialog
+from elephant import handle_dialog
 
 # Импортируем подмодули Flask для запуска веб-сервиса.
 from flask import Flask, request
@@ -28,7 +28,7 @@ session_storage = {}
 # Операвтивная памятьна heroku не стабильна, поэтому придется сохраняться на диск
 with open("sessions.json", "w", encoding="utf8") as file:
     json.dump(session_storage, fp=file)
-    
+
 # Задаем параметры приложения Flask.
 @app.route("/", methods=["POST"])
 def main():
@@ -46,7 +46,7 @@ def main():
     alice_response, session_storage[user_id] = handle_dialog(
         alice_request, alice_response, session_storage.get(user_id)
     )
-    
+
     # Потому что оперативка плохо работает
     with open("sessions.json", "w", encoding="utf8") as file:
         json.dump(session_storage, fp=file)
