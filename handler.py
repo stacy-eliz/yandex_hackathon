@@ -17,6 +17,9 @@ from json import dump
 from random import randint, choice
 from copy import deepcopy
 from re import findall, match
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class ShipBattle:
@@ -191,10 +194,11 @@ def handle_dialog(request, response, user_storage):
                     user_storage["humans_turn"] = False
                     alice_answer = alice_fires(user_storage, "remember")
                     if alice_answer == "Конец":
-                        response.set_text("Мимо. Я простреляла все клетки, так что, считайте, я выиграла")
+                        response.set_text("Мимо. Я простреляла все клетки, так что, считайте, я выиграла.")
                         response.end()
 
                     else:
+                        logging.info("ДОШЛО ДО МИМО")
                         response.set_text('Мимо. Я хожу. ' + alice_answer)
                 else:
                     user_storage["life"] -= 1
@@ -280,7 +284,10 @@ def alice_fires(user_data, happened):
                 user_data["free_cells"].pop(index_to_pop)
 
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
-        return "Судя по всему, корабль уже потоплен. " + random_fire()
+        try_fire = random_fire()
+        if try_fire == "Конец":
+            return "Конец"
+        return "Судя по всему, корабль уже потоплен. " + try_fire
 
     answer = ''
     if happened == "убил":
@@ -323,10 +330,10 @@ def alice_fires(user_data, happened):
         # Выставление стрелянной клетки на поле
         x, y = user_data["last_turn"]
         user_data["users_matrix"][y][x] = 2
-        
+
         # Инкримент к жульничеству
         user_data["cheating_stage"] += 1
-        
+
         answer = 'Ваш ход.'
         # Замечания для жуликов
         if user_data["cheating_stage"] == 10:
