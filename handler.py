@@ -245,41 +245,40 @@ def alice_fires(user_data, happened):
                 for i in range(len(user_data["free_cells"])):
                     if user_data[i] == (0, 1) or user_data[i] == (0, -1):
                         user_data["free_cells"].pop(i)
-                        
+
             elif cell_1[1] == cell_2[1]:
                 for i in range(len(user_data["free_cells"])):
                     if user_data[i] == (1, 0) or user_data[i] == (-1, 0):
                         user_data["free_cells"].pop(i)
-                        
+
         for _cell in user_data["Target"]:
             indexes_to_pop = []
             for index in range(len(user_data["free_cells"])):
-                
+
                 _x = user_data["free_cells"][index][0]
                 _y = user_data["free_cells"][index][1]
-                turn = (_x + _cell[0], _y + _cell[1])
-                
-                # Проверка на попадание в поле 
-                if 0 <= turn[0] <= 9 and 0 <= turn[1] <= 9:
-                    
+
+                # Проверка на попадание в поле
+                if 0 <= _x <= 9 and 0 <= _y <= 9:
+
                     # Если клетка стреленная удаляем из возможных в конце цикла
-                    if user_data["users_matrix"][turn[1]][turn[0]] == 2:
+                    if user_data["users_matrix"][_y][_x] == 2:
                         indexes_to_pop.append(index)
-                    
+
                     # Если клетка не стреленная стреляем
-                    elif user_data["users_matrix"][turn[1]][turn[0]] == 0:
-                        return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)
-                
+                    elif user_data["users_matrix"][_y][_x] == 0:
+                        return "{}{}".format(ALPHABET[_x].upper(), _y + 1)
+
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
                 else:
                     indexes_to_pop.append(index)
-            
+
             # Цикл для удаления возможных клеток
             for index_to_pop in indexes_to_pop:
                 user_data["free_cells"].pop(index_to_pop)
-                
+
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
-        return "Судя по всему, корабль уже потоплен. " + random_fire() 
+        return "Судя по всему, корабль уже потоплен. " + random_fire()
 
     answer = ''
     if happened == "убил":
