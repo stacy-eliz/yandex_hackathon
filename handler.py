@@ -3,11 +3,11 @@
 
 """
 RU:
-Это основная чать логики навыка Алисы Морской бой
+Это основная чать логики навыка Алисы "Морской бой"
 Написана Сайдумаровым Семеном и Елизарововой Анастасией
 Переписана и избавлена от костылей(но это не точно) Дином Дмитрием
 EN:
-This is main logic of Alice skill 'Sea war'
+This is main logic of Alice skill "Sea battle"
 Writing by Saidumarov Semen and Elizarova Anastasiya
 Rewriting and removing crutches (But it is not exactly) by Din Dmitriy
 """
@@ -22,6 +22,14 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
+class NoCellsError(Exception):
+    pass
+
+
+class WinnerError(Exception):
+    pass
+
+
 class ShipBattle:
     def __init__(self):
         # Ключи - буквы, значения - индексы
@@ -29,7 +37,7 @@ class ShipBattle:
         # Генерируем поле
         self.field = [[0 for _ in range(10)] for _ in range(10)]
 
-    # Вспомогательная фунция для проверки на пересечения
+    # Вспомогательная функция для проверки на пересечения
     def check_cell(self, cell, first_cell=False):
         x, y = cell
         count = 0
@@ -145,79 +153,75 @@ def handle_dialog(request, response, user_storage):
     try_to_make_coor = ''.join(findall(r'\w+', user_message))
     matched = match('\w\d0*', try_to_make_coor)
 
-    # Проверка слова в допустимых словах
-    if user_message in ALL_WORDS:
+    try:
+        # Проверка слова в допустимых словах
+        if user_message in ALL_WORDS:
 
-        # Если ходит Алиса
-        if not user_storage["humans_turn"]:
+            # Если ходит Алиса
+            if not user_storage["humans_turn"]:
 
-            # Проверка наличия слова в словах о потоплении
-            if user_message in KILLED_WORDS:
-                alice_answer = alice_fires(user_storage, "убил")  # TODO Все испраивть
-                if alice_answer == "Я победила, спасибо за игру!":
-                    response.set_text(alice_answer)
-                    response.end()
-                elif alice_answer == "Конец":
-                    response.set_text("Я простреляла все клетки, так что, считайте, я выиграла.")
-                else:
+                # Проверка наличия слова в словах о потоплении
+                if user_message in KILLED_WORDS:
+                    alice_answer = alice_fires(user_storage, "убил")  # TODO Все испраивть
                     response.set_text(alice_answer)
 
-            # Проверка наличия слова в словах о попадании
-            elif user_message in INJURED_WORDS:
-                alice_answer = alice_fires(user_storage, "ранил")
-                if alice_answer == "Конец":
-                    response.set_text("Я простреляла все клетки, так что, считайте, я выиграла.")
-                    response.end()
-                else:
+                # Проверка наличия слова в словах о попадании
+                elif user_message in INJURED_WORDS:
+                    alice_answer = alice_fires(user_storage, "ранил")
                     response.set_text(alice_answer)
 
-            # Проверка наличия слова в словах о промахе
-            elif user_message in MISSED_WORDS:
-                alice_fires(user_storage, "мимо")
+                # Проверка наличия слова в словах о промахе
+                elif user_message in MISSED_WORDS:
+                    alice_answer = alice_fires(user_storage, "мимо")
+                    response.set_text(alice_answer)
 
-        # Если игрок сказал не в свой ход
-        else:
-            response.set_text(choice(PHRASES_FOR_USERS_TURN))
-
-    # Проверка на присутствие шаблона re
-    elif matched is not None:
-
-        # Проверка, что сейчас ход игрока
-        if user_storage["humans_turn"]:
-            letter = matched.group(0)[0]
-            number = int(matched.group(0)[1:])
-
-            # Проверка корректности шаблона
-            if 0 < number < 11 and letter in ALPHABET:
-                result_of_fire = user_fires(user_storage["Alices_matrix"], (ALPHABET.index(letter), number - 1))
-
-                # Анализ результата выстрела
-                if result_of_fire == 'Мимо':
-                    user_storage["humans_turn"] = False
-                    alice_answer = alice_fires(user_storage, "remember")
-                    if alice_answer == "Конец":
-                        response.set_text("Мимо. Я простреляла все клетки, так что, считайте, я выиграла.")
-                        response.end()
-
-                    else:
-                        response.set_text('Мимо. Я хожу. ' + alice_answer)
-                else:
-                    user_storage["life"] -= 1
-                    response.set_text(result_of_fire)
-
-            # Если не корректный ввод
+            # Если игрок сказал не в свой ход
             else:
-                response.set_text(
-                    "Координаты клетки обозначаются буквой (от А до К, исключая Ё и Й) "
-                    "и числом (от 1 до 10) для поля 10 на 10 клеток. Пример - А1.")
+                response.set_text(choice(PHRASES_FOR_USERS_TURN))
 
-        # Если ход Алисы
+        # Проверка на присутствие шаблона re
+        elif matched is not None:
+
+            # Проверка, что сейчас ход игрока
+            if user_storage["humans_turn"]:
+                letter = matched.group(0)[0]
+                number = int(matched.group(0)[1:])
+
+                # Проверка корректности шаблона
+                if 0 < number < 11 and letter in ALPHABET:
+                    result_of_fire = user_fires(user_storage["Alices_matrix"], (ALPHABET.index(letter), number - 1))
+
+                    # Анализ результата выстрела
+                    if result_of_fire == 'Мимо':
+                        user_storage["humans_turn"] = False
+                        alice_answer = alice_fires(user_storage, "remember")
+                        response.set_text('Мимо. Я хожу. ' + alice_answer)
+                    else:
+                        user_storage["life"] -= 1
+                        response.set_text(result_of_fire)
+
+                # Если не корректный ввод
+                else:
+                    response.set_text(
+                        "Координаты клетки обозначаются буквой (от А до К, исключая Ё и Й) "
+                        "и числом (от 1 до 10) для поля 10 на 10 клеток. Пример - А1.")
+
+            # Если ход Алисы
+            else:
+                response.set_text(choice(PHRASES_FOR_ALICES_TURN))
+
+        # Если ничему не соответствует
         else:
-            response.set_text(choice(PHRASES_FOR_ALICES_TURN))
+            response.set_text("Простите, но я вас не поняла.")
 
-    # Если ничему не соответствует
-    else:
-        response.set_text("Простите, но я вас не поняла.")
+    # Выходы из рекурсии
+    except NoCellsError:
+        response.set_text("Я простреляла все клетки, так что считайте, что я победила.")
+        response.end()
+
+    except WinnerError:
+        response.set_text("Я выиграла, спасибо за игру!")
+        response.end()
 
     # В любом случае
     return response, user_storage
@@ -236,7 +240,7 @@ def alice_fires(user_data, happened):
                     cells_for_fire.append((_x, _y))  # Добавляем в список возможных клеток
         # Проверка, на то, что еще остались пустые клетки
         if len(cells_for_fire) == 0:
-            return "Конец"
+            raise NoCellsError
 
         turn = choice(cells_for_fire)  # Рандомно берем
         user_data["last_turn"] = turn
@@ -286,16 +290,15 @@ def alice_fires(user_data, happened):
 
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
-        if try_fire == "Конец":
-            return "Конец"
         return "Судя по всему, корабль уже потоплен. " + try_fire
 
     answer = ''
-    if happened == "убил":
+    if happened == "убил" or happened == "ранил":
         user_data["life"] -= 1
         if user_data["life"] < 1:
-            return "Я победила, спасибо за игру!"
+            raise WinnerError
 
+    if happened == "убил":
         user_data["cheating_stage"] = 0  # Обнуляем уровень жулика
         user_data["Target"].append(user_data["last_turn"])  # Добавим клетку, чтобы в цикле она тоже отметилась
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]  # Обновляем возможные клетки
