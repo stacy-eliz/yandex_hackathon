@@ -254,12 +254,12 @@ def alice_fires(user_data, happened):
             cell_2 = user_data["Target"][1]
             if cell_1[0] == cell_2[0]:
                 for i in range(len(user_data["free_cells"])):
-                    if user_data["free_cells"][i] == (0, 1) or user_data["free_cells"][i] == (0, -1):
+                    if user_data["free_cells"][i] == (1, 0) or user_data["free_cells"][i] == (-1, 0):
                         user_data["free_cells"].pop(i)
 
             elif cell_1[1] == cell_2[1]:
                 for i in range(len(user_data["free_cells"])):
-                    if user_data[i] == (1, 0) or user_data[i] == (-1, 0):
+                    if user_data["free_cells"][i] == (0, 1) or user_data["free_cells"][i] == (0, -1):
                         user_data["free_cells"].pop(i)
 
         for _cell in user_data["Target"]:
