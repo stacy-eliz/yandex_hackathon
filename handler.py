@@ -315,20 +315,20 @@ def alice_fires(user_data, happened):
 
         # Опустошаем спискок, отвечающего за подбитый корабль
         user_data["Target"] = []
-        return random_fire()
+        answer = random_fire()
 
     elif happened == "ранил":
         user_data["cheating_stage"] = 0  # Обнуляем уровень жулика
 
         # Добаляем клетку в список корабля
         user_data["Target"].append(user_data["last_turn"])
-        clever_fire()
+        answer = clever_fire()
 
     elif happened == "remember":
         if user_data["Target"]:
-            return clever_fire()
+            answer = clever_fire()
         else:
-            return random_fire()
+            answer = random_fire()
 
     else:
 
