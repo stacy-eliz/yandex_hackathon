@@ -274,7 +274,7 @@ def alice_fires(user_data, happened):
                         cells_to_del.append(user_data["free_cells"][i])
 
             for cell_to_del in cells_to_del:
-                cells_to_del.remove(cells_to_del)
+                cells_to_del.remove(cell_to_del)
 
         chosen = False
         # Выбираем клетку в которую будем стрелять
