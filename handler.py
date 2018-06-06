@@ -136,7 +136,7 @@ def handle_dialog(request, response, user_storage):
             "users_matrix": [[0 for _ in range(10)] for _ in range(10)],
             "cheating_stage": 0,
             "last_turn": None,
-            "free_cells": [(0, 1), (1, 0), (-1, 0), (0, -1)]
+            "directions": [(0, 1), (1, 0), (-1, 0), (0, -1)]
         }
 
         # Приветствие
@@ -256,7 +256,7 @@ def alice_fires(user_data, happened):
     def clever_fire():
 
         # Если корабль поранен дважды, определяем положение корабля (горизонатльное/вертикальное)
-        logging.info("Free_cells: {}".format(user_data["free_cells"]))
+        logging.info("directions before: {}".format(user_data["directions"]))
 
         if len(user_data["Target"]) == 2:
             cell_1 = user_data["Target"][0]
@@ -265,34 +265,35 @@ def alice_fires(user_data, happened):
             cells_to_del = []
             # Если горизнтальное
             if cell_1[0] == cell_2[0]:
-                for i in range(len(user_data["free_cells"])):
-                    if user_data["free_cells"][i] != (0, 1) or user_data["free_cells"][i] != (0, -1):
-                        cells_to_del.append(user_data["free_cells"][i])
+                for i in range(len(user_data["directions"])):
+                    if user_data["directions"][i] != (0, 1) or user_data["directions"][i] != (0, -1):
+                        cells_to_del.append(user_data["directions"][i])
 
             # Если вертикальное
             elif cell_1[1] == cell_2[1]:
-                for i in range(len(user_data["free_cells"])):
-                    if user_data["free_cells"][i] != (1, 0) or user_data["free_cells"][i] != (-1, 0):
-                        cells_to_del.append(user_data["free_cells"][i])
+                for i in range(len(user_data["directions"])):
+                    if user_data["directions"][i] != (1, 0) or user_data["directions"][i] != (-1, 0):
+                        cells_to_del.append(user_data["directions"][i])
 
             for cell_to_del in cells_to_del:
-                user_data["free_cells"].remove(cell_to_del)
+                user_data["directions"].remove(cell_to_del)
+        logging.info("directions after: {}".format(user_data["directions"]))
 
         chosen = False
         # Выбираем клетку в которую будем стрелять
         for _cell in user_data["Target"]:
-            indexes_to_pop = []
-            for index in range(len(user_data["free_cells"])):
+            directions_to_del = []
+            for possible_direction in user_data["directions"]:
 
-                _x = user_data["free_cells"][index][0] + _cell[0]
-                _y = user_data["free_cells"][index][1] + _cell[1]
+                _x = possible_direction[0] + _cell[0]
+                _y = possible_direction[1] + _cell[1]
 
                 # Проверка на попадание в поле
                 if 0 <= _x <= 9 and 0 <= _y <= 9:
 
-                    # Если клетка стрелянная удаляем из возможных в конце цикла
+                    # Если клетка стрелянная удаляем напрвление из возможных в конце цикла
                     if user_data["users_matrix"][_y][_x] == 2:
-                        indexes_to_pop.append(index)
+                        directions_to_del.append(possible_direction)
 
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
@@ -301,16 +302,16 @@ def alice_fires(user_data, happened):
 
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
                 else:
-                    indexes_to_pop.append(index)
+                    directions_to_del.append(possible_direction)
 
             # Цикл для удаления возможных клеток
-            for index_to_pop in indexes_to_pop:
-                user_data["free_cells"].pop(index_to_pop)
+            for direction in directions_to_del:
+                user_data["directions"].remove(direction)
 
         if chosen:
             return "{}{}".format(ALPHABET[user_data["last_turn"][0]].upper(), user_data["last_turn"][1] + 1)
 
-        user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
+        user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
         return "Судя по всему, корабль уже потоплен. " + try_fire
 
@@ -322,7 +323,7 @@ def alice_fires(user_data, happened):
     if happened == "убил":
         user_data["cheating_stage"] = 0  # Обнуляем уровень жулика
         user_data["Target"].append(user_data["last_turn"])  # Добавим клетку, чтобы в цикле она тоже отметилась
-        user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]  # Обновляем возможные клетки
+        user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]  # Обновляем возможные клетки
         for cell in user_data["Target"]:  # Проходим по клеткам корабля и отмечаем клетки в округе
             x, y = cell  # Достаем координаты
 
