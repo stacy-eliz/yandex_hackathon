@@ -260,17 +260,21 @@ def alice_fires(user_data, happened):
             cell_1 = user_data["Target"][0]
             cell_2 = user_data["Target"][1]
 
+            cells_to_del = []
             # Если горизнтальное
             if cell_1[0] == cell_2[0]:
                 for i in range(len(user_data["free_cells"])):
                     if user_data["free_cells"][i] != (0, 1) or user_data["free_cells"][i] != (0, -1):
-                        user_data["free_cells"].pop(i)
+                        cells_to_del.append(user_data["free_cells"][i])
 
             # Если вертикальное
             elif cell_1[1] == cell_2[1]:
                 for i in range(len(user_data["free_cells"])):
                     if user_data["free_cells"][i] != (1, 0) or user_data["free_cells"][i] != (-1, 0):
-                        user_data["free_cells"].pop(i)
+                        cells_to_del.append(user_data["free_cells"][i])
+
+            for cell_to_del in cells_to_del:
+                cells_to_del.remove(cells_to_del)
 
         chosen = False
         # Выбираем клетку в которую будем стрелять
@@ -302,7 +306,7 @@ def alice_fires(user_data, happened):
                 user_data["free_cells"].pop(index_to_pop)
 
         if chosen:
-            return "{}{}".format(ALPHABET[user_data["last_turn"][1]].upper(), user_data["last_turn"][0] + 1)
+            return "{}{}".format(ALPHABET[user_data["last_turn"][0]].upper(), user_data["last_turn"][1] + 1)
 
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
