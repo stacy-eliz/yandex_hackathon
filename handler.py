@@ -266,11 +266,11 @@ def alice_fires(user_data, happened):
             indexes_to_pop = []
             for index in range(len(user_data["free_cells"])):
 
-                _x = user_data["free_cells"][index][0]
-                _y = user_data["free_cells"][index][1]
+                _x = user_data["free_cells"][index][0] + _cell[0]
+                _y = user_data["free_cells"][index][1] + _cell[1]
 
                 # Проверка на попадание в поле
-                if 0 <= _x + _cell[0] <= 9 and 0 <= _y + _cell[1] <= 9:
+                if 0 <= _x <= 9 and 0 <= _y <= 9:
 
                     # Если клетка стрелянная удаляем из возможных в конце цикла
                     if user_data["users_matrix"][_y][_x] == 2:
