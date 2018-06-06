@@ -256,8 +256,6 @@ def alice_fires(user_data, happened):
     def clever_fire():
 
         # Если корабль поранен дважды, определяем положение корабля (горизонатльное/вертикальное)
-        logging.info("directions before: {}".format(user_data["directions"]))
-
         if len(user_data["Target"]) == 2:
             cell_1 = user_data["Target"][0]
             cell_2 = user_data["Target"][1]
@@ -277,14 +275,12 @@ def alice_fires(user_data, happened):
 
             for cell_to_del in cells_to_del:
                 user_data["directions"].remove(cell_to_del)
-        logging.info("directions after: {}".format(user_data["directions"]))
 
         chosen = False
         # Выбираем клетку в которую будем стрелять
-        for _cell in user_data["Target"]:
-            directions_to_del = []
-            for possible_direction in user_data["directions"]:
-
+        directions_to_del = []
+        for possible_direction in user_data["directions"]:
+            for _cell in user_data["Target"]:
                 _x = possible_direction[0] + _cell[0]
                 _y = possible_direction[1] + _cell[1]
 
@@ -294,6 +290,7 @@ def alice_fires(user_data, happened):
                     # Если клетка стрелянная удаляем напрвление из возможных в конце цикла
                     if user_data["users_matrix"][_y][_x] == 2:
                         directions_to_del.append(possible_direction)
+                        break
 
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
