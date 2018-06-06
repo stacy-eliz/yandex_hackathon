@@ -266,13 +266,13 @@ def alice_fires(user_data, happened):
             # Если горизнтальное
             if cell_1[0] == cell_2[0]:
                 for i in range(len(user_data["directions"])):
-                    if user_data["directions"][i] != (0, 1) or user_data["directions"][i] != (0, -1):
+                    if tuple(user_data["directions"][i]) != (0, 1) or tuple(user_data["directions"][i]) != (0, -1):
                         cells_to_del.append(user_data["directions"][i])
 
             # Если вертикальное
             elif cell_1[1] == cell_2[1]:
                 for i in range(len(user_data["directions"])):
-                    if user_data["directions"][i] != (1, 0) or user_data["directions"][i] != (-1, 0):
+                    if tuple(user_data["directions"][i]) != (1, 0) or tuple(user_data["directions"][i]) != (-1, 0):
                         cells_to_del.append(user_data["directions"][i])
 
             for cell_to_del in cells_to_del:
