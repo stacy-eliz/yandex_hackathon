@@ -256,6 +256,8 @@ def alice_fires(user_data, happened):
     def clever_fire():
 
         # Если корабль поранен дважды, определяем положение корабля (горизонатльное/вертикальное)
+        logging.info("Free_cells: {}".format(user_data["free_cells"]))
+
         if len(user_data["Target"]) == 2:
             cell_1 = user_data["Target"][0]
             cell_2 = user_data["Target"][1]
