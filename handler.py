@@ -198,8 +198,8 @@ def handle_dialog(request, response, user_storage):
                         alice_answer = alice_fires(user_storage, "remember")
                         response.set_text('Мимо. Я хожу. ' + alice_answer)
                     else:
-                        user_storage["alices_life"] -= 1
-                        if user_storage["alices_life"] < 1:
+                        user_storage["alice_life"] -= 1
+                        if user_storage["alice_life"] < 1:
                             response.set_text("Вы победили меня, поздравляю! Спасибо за игру!")
                             response.end()
                         else:
