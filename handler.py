@@ -97,6 +97,7 @@ class ShipBattle:
 
 
 SHIPS = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+LIFE = sum(SHIPS)
 ALPHABET = ['а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'к']
 
 KILLED_WORDS = ['убила', 'убил', 'потопила', 'потоплен', 'потопил']
@@ -127,15 +128,15 @@ def handle_dialog(request, response, user_storage):
 
         user_storage = {
             "user_id": request.user_id,
-            "humans_turn": True,
-            "life": sum(SHIPS),
+            "users_turn": True,
+            "alice_life": LIFE,
+            "users_life": LIFE,
             "Target": [],
-            "Alices_matrix": ship_battle.field,
+            "alices_matrix": ship_battle.field,
             "users_matrix": [[0 for _ in range(10)] for _ in range(10)],
             "cheating_stage": 0,
             "last_turn": None,
             "free_cells": [(0, 1), (1, 0), (-1, 0), (0, -1)]
-
         }
 
         # Приветствие
@@ -158,11 +159,11 @@ def handle_dialog(request, response, user_storage):
         if user_message in ALL_WORDS:
 
             # Если ходит Алиса
-            if not user_storage["humans_turn"]:
+            if not user_storage["users_turn"]:
 
                 # Проверка наличия слова в словах о потоплении
                 if user_message in KILLED_WORDS:
-                    alice_answer = alice_fires(user_storage, "убил")  # TODO Все испраивть
+                    alice_answer = alice_fires(user_storage, "убил")
                     response.set_text(alice_answer)
 
                 # Проверка наличия слова в словах о попадании
@@ -183,22 +184,26 @@ def handle_dialog(request, response, user_storage):
         elif matched is not None:
 
             # Проверка, что сейчас ход игрока
-            if user_storage["humans_turn"]:
+            if user_storage["users_turn"]:
                 letter = matched.group(0)[0]
                 number = int(matched.group(0)[1:])
 
                 # Проверка корректности шаблона
                 if 0 < number < 11 and letter in ALPHABET:
-                    result_of_fire = user_fires(user_storage["Alices_matrix"], (ALPHABET.index(letter), number - 1))
+                    result_of_fire = user_fires(user_storage["alices_matrix"], (ALPHABET.index(letter), number - 1))
 
                     # Анализ результата выстрела
                     if result_of_fire == 'Мимо':
-                        user_storage["humans_turn"] = False
+                        user_storage["users_turn"] = False
                         alice_answer = alice_fires(user_storage, "remember")
                         response.set_text('Мимо. Я хожу. ' + alice_answer)
                     else:
-                        user_storage["life"] -= 1
-                        response.set_text(result_of_fire)
+                        user_storage["alices_life"] -= 1
+                        if user_storage["alices_life"] < 1:
+                            response.set_text("Вы победили меня, поздравляю! Спасибо за игру!")
+                            response.end()
+                        else:
+                            response.set_text(result_of_fire)
 
                 # Если не корректный ввод
                 else:
@@ -248,21 +253,27 @@ def alice_fires(user_data, happened):
         return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)  # Формируем ответ
 
     # Умный выстрел (с учетом предыдущих выстрелов для подбитого корабля)
-    def clever_fire():  # TODO Доделать
-        if len(user_data["Target"]) > 1:
+    def clever_fire():
+
+        # Если корабль поранен дважды, определяем положение корабля (горизонатльное/вертикальное)
+        if len(user_data["Target"]) == 2:
             cell_1 = user_data["Target"][0]
             cell_2 = user_data["Target"][1]
+
+            # Если горизнтальное
             if cell_1[0] == cell_2[0]:
                 for i in range(len(user_data["free_cells"])):
                     if user_data["free_cells"][i] != (0, 1) or user_data["free_cells"][i] != (0, -1):
                         user_data["free_cells"].pop(i)
 
+            # Если вертикальное
             elif cell_1[1] == cell_2[1]:
                 for i in range(len(user_data["free_cells"])):
                     if user_data["free_cells"][i] != (1, 0) or user_data["free_cells"][i] != (-1, 0):
                         user_data["free_cells"].pop(i)
 
         chosen = False
+        # Выбираем клетку в которую будем стрелять
         for _cell in user_data["Target"]:
             indexes_to_pop = []
             for index in range(len(user_data["free_cells"])):
@@ -298,8 +309,8 @@ def alice_fires(user_data, happened):
         return "Судя по всему, корабль уже потоплен. " + try_fire
 
     if happened == "убил" or happened == "ранил":
-        user_data["life"] -= 1
-        if user_data["life"] < 1:
+        user_data["users_life"] -= 1
+        if user_data["users_life"] < 1:
             raise WinnerError
 
     if happened == "убил":
@@ -334,15 +345,14 @@ def alice_fires(user_data, happened):
         answer = clever_fire()
 
     elif happened == "remember":
-        if user_data["Target"]:
+        if user_data["Target"]:  # Если есть раненый корабль
             answer = clever_fire()
         else:
             answer = random_fire()
 
     else:
-
         # Переключаем на ход игрока
-        user_data["humans_turn"] = True
+        user_data["users_turn"] = True
 
         # Выставление стрелянной клетки на поле
         x, y = user_data["last_turn"]
