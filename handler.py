@@ -254,14 +254,15 @@ def alice_fires(user_data, happened):
             cell_2 = user_data["Target"][1]
             if cell_1[0] == cell_2[0]:
                 for i in range(len(user_data["free_cells"])):
-                    if user_data["free_cells"][i] == (1, 0) or user_data["free_cells"][i] == (-1, 0):
+                    if user_data["free_cells"][i] != (0, 1) or user_data["free_cells"][i] != (0, -1):
                         user_data["free_cells"].pop(i)
 
             elif cell_1[1] == cell_2[1]:
                 for i in range(len(user_data["free_cells"])):
-                    if user_data["free_cells"][i] == (0, 1) or user_data["free_cells"][i] == (0, -1):
+                    if user_data["free_cells"][i] != (1, 0) or user_data["free_cells"][i] != (-1, 0):
                         user_data["free_cells"].pop(i)
 
+        chosen = False
         for _cell in user_data["Target"]:
             indexes_to_pop = []
             for index in range(len(user_data["free_cells"])):
@@ -279,7 +280,7 @@ def alice_fires(user_data, happened):
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
                         user_data["last_turn"] = (_x, _y)
-                        return "{}{}".format(ALPHABET[_x].upper(), _y + 1)
+                        chosen = True
 
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
                 else:
@@ -288,6 +289,9 @@ def alice_fires(user_data, happened):
             # Цикл для удаления возможных клеток
             for index_to_pop in indexes_to_pop:
                 user_data["free_cells"].pop(index_to_pop)
+
+        if chosen:
+            return "{}{}".format(ALPHABET[user_data["last_turn"][1]].upper(), user_data["last_turn"][0] + 1)
 
         user_data["free_cells"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
