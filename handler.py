@@ -265,15 +265,15 @@ def alice_fires(user_data, happened):
             cells_to_del = []
             # Если горизнтальное
             if cell_1[0] == cell_2[0]:
-                for i in range(len(user_data["directions"])):
-                    if tuple(user_data["directions"][i]) != (0, 1) or tuple(user_data["directions"][i]) != (0, -1):
-                        cells_to_del.append(user_data["directions"][i])
+                for direction in user_data["directions"]:
+                    if direction in [(1, 0), (-1, 0)]:
+                        cells_to_del.append(direction)
 
             # Если вертикальное
             elif cell_1[1] == cell_2[1]:
-                for i in range(len(user_data["directions"])):
-                    if tuple(user_data["directions"][i]) != (1, 0) or tuple(user_data["directions"][i]) != (-1, 0):
-                        cells_to_del.append(user_data["directions"][i])
+                for direction in user_data["directions"]:
+                    if direction in [(0, 1), (0, -1)]:
+                        cells_to_del.append(direction)
 
             for cell_to_del in cells_to_del:
                 user_data["directions"].remove(cell_to_del)
