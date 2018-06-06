@@ -244,6 +244,7 @@ def alice_fires(user_data, happened):
 
         turn = choice(cells_for_fire)  # Рандомно берем
         user_data["last_turn"] = turn
+
         return "{}{}".format(ALPHABET[turn[0]].upper(), turn[1] + 1)  # Формируем ответ
 
     # Умный выстрел (с учетом предыдущих выстрелов для подбитого корабля)
@@ -292,7 +293,6 @@ def alice_fires(user_data, happened):
         try_fire = random_fire()
         return "Судя по всему, корабль уже потоплен. " + try_fire
 
-    answer = ''
     if happened == "убил" or happened == "ранил":
         user_data["life"] -= 1
         if user_data["life"] < 1:
@@ -322,6 +322,11 @@ def alice_fires(user_data, happened):
 
         # Добаляем клетку в список корабля
         user_data["Target"].append(user_data["last_turn"])
+
+        # Отмечаем прошлый выстрел в матрице
+        x, y = user_data["last_turn"]
+        user_data["users_matrix"][y][x] = 3
+
         answer = clever_fire()
 
     elif happened == "remember":
