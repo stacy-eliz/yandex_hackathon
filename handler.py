@@ -256,7 +256,7 @@ def alice_fires(user_data, happened):
     def clever_fire():
 
         # Если корабль поранен дважды, определяем положение корабля (горизонатльное/вертикальное)
-        if len(user_data["Target"]) == 2:
+        if len(user_data["Target"]) > 1:
             cell_1 = user_data["Target"][0]
             cell_2 = user_data["Target"][1]
 
@@ -279,6 +279,7 @@ def alice_fires(user_data, happened):
         chosen = False
         # Выбираем клетку в которую будем стрелять
         directions_to_del = []
+        cells_to_check = {}
         for possible_direction in user_data["directions"]:
             for _cell in user_data["Target"]:
                 _x = possible_direction[0] + _cell[0]
@@ -294,7 +295,7 @@ def alice_fires(user_data, happened):
 
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
-                        user_data["last_turn"] = (_x, _y)
+                        cells_to_check[possible_direction] = (_x, _y)
                         chosen = True
 
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
@@ -306,7 +307,10 @@ def alice_fires(user_data, happened):
                 user_data["directions"].remove(direction)
 
         if chosen:
-            return "{}{}".format(ALPHABET[user_data["last_turn"][0]].upper(), user_data["last_turn"][1] + 1)
+            for direction in cells_to_check:
+                if direction not in directions_to_del:
+                    user_data["last_turn"] = cells_to_check[direction]
+                    return "{}{}".format(ALPHABET[user_data["last_turn"][0]].upper(), user_data["last_turn"][1] + 1)
 
         user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
