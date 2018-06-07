@@ -310,6 +310,8 @@ def alice_fires(user_data, happened):
                     pass
 
         if chosen:
+            logging.info("cells to check: {}".format(cells_to_check))
+            logging.info("possible_directions: {}".format(user_data["directions"]))
             for _cell in cells_to_check:
                 if cells_to_check[_cell] in user_data["directions"]:
                     user_data["last_turn"] = _cell
