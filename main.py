@@ -29,6 +29,7 @@ session_storage = {}
 with open("sessions.json", "w", encoding="utf8") as file:
     json.dump(session_storage, fp=file)
 
+
 # Задаем параметры приложения Flask.
 @app.route("/", methods=["POST"])
 def main():
@@ -37,7 +38,7 @@ def main():
         session_storage = json.loads(file.read())
 
     alice_request = AliceRequest(request.json)
-    logging.info("Request: {}".format(alice_request))
+    # logging.info("Request: {}".format(alice_request))
 
     alice_response = AliceResponse(alice_request)
 
@@ -51,7 +52,7 @@ def main():
     with open("sessions.json", "w", encoding="utf8") as file:
         json.dump(session_storage, fp=file)
 
-    logging.info("Response: {}".format(alice_response))
+    # logging.info("Response: {}".format(alice_response))
 
     return alice_response.dumps()
 
