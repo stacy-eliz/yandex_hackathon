@@ -304,7 +304,10 @@ def alice_fires(user_data, happened):
 
             # Цикл для удаления возможных клеток
             for direction in directions_to_del:
-                user_data["directions"].remove(direction)
+                try:
+                    user_data["directions"].remove(direction)
+                except ValueError:
+                    pass
 
         if chosen:
             for _cell in cells_to_check:
