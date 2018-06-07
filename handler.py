@@ -295,7 +295,7 @@ def alice_fires(user_data, happened):
 
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
-                        cells_to_check[possible_direction] = (_x, _y)
+                        cells_to_check[(_x, _y)] = possible_direction
                         chosen = True
 
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
@@ -307,10 +307,10 @@ def alice_fires(user_data, happened):
                 user_data["directions"].remove(direction)
 
         if chosen:
-            for direction in cells_to_check:
-                if direction not in directions_to_del:
-                    user_data["last_turn"] = cells_to_check[direction]
-                    return "{}{}".format(ALPHABET[user_data["last_turn"][0]].upper(), user_data["last_turn"][1] + 1)
+            for _cell in cells_to_check:
+                if cells_to_check[_cell] in user_data["directions"]:
+                    user_data["last_turn"] = _cell
+                    return "{}{}".format(ALPHABET[_cell[0]].upper(), _cell[1] + 1)
 
         user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
