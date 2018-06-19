@@ -316,7 +316,7 @@ def alice_fires(user_data, happened):
                 if cells_to_check[_cell] in user_data["directions"]:
                     user_data["last_turn"] = _cell
                     return "{}{}".format(ALPHABET[_cell[0]].upper(), _cell[1] + 1)
-
+        user_data["Target"] = []
         user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
         try_fire = random_fire()
         return "Судя по всему, корабль уже потоплен. " + try_fire
