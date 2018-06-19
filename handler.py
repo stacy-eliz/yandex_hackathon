@@ -234,7 +234,6 @@ def handle_dialog(request, response, user_storage):
 
 # Функция, отвечающая за стрельбу Алисы
 def alice_fires(user_data, happened):
-
     # Рандомный выстрел
     def random_fire():
         cells_for_fire = []  # Список доступных клеток
@@ -264,18 +263,18 @@ def alice_fires(user_data, happened):
             # Если горизнтальное
             if cell_1[0] == cell_2[0]:
                 for direction in user_data["directions"]:
-                    if direction in [(1, 0), (-1, 0)]:
+                    if direction in [[1, 0], [-1, 0]]:
                         cells_to_del.append(direction)
 
             # Если вертикальное
             elif cell_1[1] == cell_2[1]:
                 for direction in user_data["directions"]:
-                    if direction in [(0, 1), (0, -1)]:
+                    if direction in [[0, 1], [0, -1]]:
                         cells_to_del.append(direction)
 
             for cell_to_del in cells_to_del:
                 user_data["directions"].remove(cell_to_del)
-        
+
         logging.info("user_data: {}".format(user_data))
 
         chosen = False
@@ -319,7 +318,7 @@ def alice_fires(user_data, happened):
                     user_data["last_turn"] = _cell
                     return "{}{}".format(ALPHABET[_cell[0]].upper(), _cell[1] + 1)
         user_data["Target"] = []
-        user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]
+        user_data["directions"] = [[0, 1], [1, 0], [-1, 0], [0, -1]]
         try_fire = random_fire()
         return "Судя по всему, корабль уже потоплен. " + try_fire
 
@@ -331,7 +330,7 @@ def alice_fires(user_data, happened):
     if happened == "убил":
         user_data["cheating_stage"] = 0  # Обнуляем уровень жулика
         user_data["Target"].append(user_data["last_turn"])  # Добавим клетку, чтобы в цикле она тоже отметилась
-        user_data["directions"] = [(0, 1), (1, 0), (-1, 0), (0, -1)]  # Обновляем возможные клетки
+        user_data["directions"] = [[0, 1], [1, 0], [-1, 0], [0, -1]]  # Обновляем возможные клетки
         for cell in user_data["Target"]:  # Проходим по клеткам корабля и отмечаем клетки в округе
             x, y = cell  # Достаем координаты
 
