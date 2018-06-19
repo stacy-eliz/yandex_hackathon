@@ -52,7 +52,7 @@ def main():
     with open("sessions.json", "w", encoding="utf8") as file:
         json.dump(session_storage, fp=file)
 
-    # logging.info("Response: {}".format(alice_response))
+    logging.info("Response: {}".format(alice_response))
 
     return alice_response.dumps()
 
