@@ -275,7 +275,6 @@ def alice_fires(user_data, happened):
             for cell_to_del in cells_to_del:
                 user_data["directions"].remove(cell_to_del)
 
-        logging.info("user_data: {}".format(user_data))
 
         chosen = False
         # Выбираем клетку в которую будем стрелять
@@ -292,7 +291,6 @@ def alice_fires(user_data, happened):
                     # Если клетка стрелянная удаляем напрвление из возможных в конце цикла
                     if user_data["users_matrix"][_y][_x] == 2:
                         directions_to_del.append(possible_direction)
-                        break
 
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
@@ -304,15 +302,15 @@ def alice_fires(user_data, happened):
                     directions_to_del.append(possible_direction)
 
             # Цикл для удаления возможных клеток
+            directions_to_del = list(set(directions_to_del))
             for direction in directions_to_del:
                 try:
                     user_data["directions"].remove(direction)
                 except ValueError:
                     pass
-        logging.info("user_data_after: ".format(user_data))
         logging.info("cells to check: {}".format(cells_to_check))
         logging.info("possible_directions: {}".format(user_data["directions"]))
-
+        
         if chosen:
             for _cell in cells_to_check:
                 if cells_to_check[_cell] in user_data["directions"]:
