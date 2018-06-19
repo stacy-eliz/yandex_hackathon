@@ -310,13 +310,15 @@ def alice_fires(user_data, happened):
                 except ValueError:
                     pass
         logging.info("user_data_after: ".format(user_data))
+        logging.info("cells to check: {}".format(cells_to_check))
+        logging.info("possible_directions: {}".format(user_data["directions"]))
+
         if chosen:
-            logging.info("cells to check: {}".format(cells_to_check))
-            logging.info("possible_directions: {}".format(user_data["directions"]))
             for _cell in cells_to_check:
                 if cells_to_check[_cell] in user_data["directions"]:
                     user_data["last_turn"] = _cell
                     return "{}{}".format(ALPHABET[_cell[0]].upper(), _cell[1] + 1)
+
         user_data["Target"] = []
         user_data["directions"] = [[0, 1], [1, 0], [-1, 0], [0, -1]]
         try_fire = random_fire()
