@@ -251,10 +251,8 @@ def alice_fires(user_data, happened):
 
     # Умный выстрел (с учетом предыдущих выстрелов для подбитого корабля)
     def clever_fire():
-
-        # k_kill = [4,3,2,1]
         # Если корабль поранен дважды, определяем положение корабля (горизонатльное/вертикальное)
-        if len(user_data["Target"]) > 1:
+        if len(user_data["Target"]) == 2:
             cell_1 = user_data["Target"][0]
             cell_2 = user_data["Target"][1]
 
@@ -274,7 +272,6 @@ def alice_fires(user_data, happened):
             for cell_to_del in cells_to_del:
                 user_data["directions"].remove(cell_to_del)
 
-        chosen = False
         # Выбираем клетку в которую будем стрелять
         directions_to_del = []
         cells_to_check = {}
@@ -294,7 +291,6 @@ def alice_fires(user_data, happened):
                     # Если клетка не стрелянная стреляем
                     elif user_data["users_matrix"][_y][_x] == 0:
                         cells_to_check[(_x, _y)] = possible_direction
-                        chosen = True
 
                 # Если клетка не попадает в поле удаляем из возможных в конце цикла
                 else:
@@ -307,17 +303,18 @@ def alice_fires(user_data, happened):
                 except ValueError:
                     pass
 
-        if chosen:
-            for _cell in cells_to_check:
-                if cells_to_check[_cell] in user_data["directions"]:
-                    user_data['last_turn'] = _cell
-                    user_data["last_turn_alice"] = [_cell, 0]
-                    return "{}{}".format(ALPHABET[_cell[0]].upper(), _cell[1] + 1)
+        for _cell in cells_to_check:
+            if cells_to_check[_cell] in user_data["directions"]:
+                user_data['last_turn'] = _cell
+                user_data["last_turn_alice"] = [_cell, 0]
+                return "{}{}".format(ALPHABET[_cell[0]].upper(), _cell[1] + 1)
 
-        elif not chosen and not user_data["directions"]:
+        if not user_data["directions"]:
             user_data["directions"] = [[0, 1], [1, 0], [-1, 0], [0, -1]]
             try_fire = random_fire()
             return "Судя по всему, корабль уже потоплен. " + try_fire
+
+        return "Это баг.{}".format(user_data)
 
     def delete_ship():
         for cell in user_data["Target"]:  # Проходим по клеткам корабля и отмечаем клетки в округе
